@@ -20,7 +20,8 @@ os.getcwd()
 wd = "C:\\Users\\WON4SZH\\Desktop\\report to WangDong\\008_book_tasks\\2020_如何突破传统机器学习的瓶颈\\code\\entity_examples\\entity_embeding_examples"
 os.chdir(wd)
 
-from keras.layers import Dense, Activation, Embedding,  Flatten #Merge,
+from keras.layers import Dense, Activation, Embedding,  Flatten   #Merge,
+
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -92,3 +93,67 @@ for w in model.get_weights():
     print(w.shape)
     
 model.evaluate(test_x, test_y, batch_size=256)
+
+model.predict(test_x[:10])
+
+##========================= using emedding ======================
+liv
+
+train_x, test_x, train_liv, \
+test_liv, train_edu, test_edu, train_y, test_y = train_test_split(x,liv,edu,y,test_size=0.1, random_state=1)
+
+# Usinig Functional API
+from keras.layers import Input, Concatenate, Reshape
+from keras.models import Model
+
+input_1 = Input(shape=[1,], name="live_input")
+liv_embed = Embedding(liv_cats,4,input_length=1)(input_1)
+liv_out = Reshape((4,))(liv_embed)
+
+input_2 = Input(shape=[1,], name="edu_input")
+edu_embed = Embedding(edu_cats,4,input_length=1)(input_2)
+edu_out = Reshape((4,))(edu_embed)
+
+input_3 = Input(shape=[4,], name="dense_input")
+x_dense = Dense(4, name="test_dense_trans")(input_3)
+
+concat_layer = Concatenate()([liv_out, edu_out, x_dense])
+
+dense_layer1 = Dense(units=12)(concat_layer)
+activation_layer = Activation('relu')(dense_layer1)
+dense_layer = Dense(units=3)(activation_layer)
+out_layer = Activation('softmax')(dense_layer)
+
+model = Model(inputs=[input_1, input_2, input_3], outputs=out_layer)
+
+model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
+
+model.fit([train_liv[:,None], train_edu[:,None], train_x], train_y, nb_epoch=100, verbose=2)
+
+
+# Input layer for religion
+encoder_liv = Sequential()
+encoder_liv.add(Embedding(liv_cats,4,input_length=1))
+encoder_liv.add(Flatten())
+
+# Input layer for religion
+encoder_edu = Sequential()
+encoder_edu.add(Embedding(edu_cats,4,input_length=1))
+encoder_edu.add(Flatten())
+
+# Input layer for triggers(x_b)
+dense_x = Sequential()
+dense_x.add(Dense(4, input_dim=x.shape[1]))
+
+
+#model = Sequential()
+#model.add(Merge([encoder_liv, encoder_edu, dense_x], mode='concat'))
+## model.add(Activation('relu'))
+#model.add(Dense(output_dim=12))
+#model.add(Activation('relu'))
+#model.add(Dense(output_dim=3))
+#model.add(Activation('softmax'))
+
+
+
+
