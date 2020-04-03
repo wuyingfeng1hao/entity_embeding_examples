@@ -22,7 +22,6 @@ os.chdir(wd)
 
 from keras.layers import Dense, Activation, Embedding,  Flatten   #Merge,
 
-
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
@@ -83,6 +82,7 @@ model.add(Activation('relu'))
 
 model.add(Dense(units=3))
 
+model.add(Activation('softmax'))
 model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
 
 model.fit(train_x, train_y, nb_epoch=100, verbose=2)
@@ -96,7 +96,7 @@ model.evaluate(test_x, test_y, batch_size=256)
 
 model.predict(test_x[:10])
 
-##========================= using emedding ======================
+##========================= #2 using emedding ======================
 liv
 
 train_x, test_x, train_liv, \
@@ -130,30 +130,39 @@ model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['ac
 
 model.fit([train_liv[:,None], train_edu[:,None], train_x], train_y, nb_epoch=100, verbose=2)
 
+liv_out.shape
+edu_out.shape
+x_dense.shape
+concat_layer.shape
 
-# Input layer for religion
-encoder_liv = Sequential()
-encoder_liv.add(Embedding(liv_cats,4,input_length=1))
-encoder_liv.add(Flatten())
+model.summary()
 
-# Input layer for religion
-encoder_edu = Sequential()
-encoder_edu.add(Embedding(edu_cats,4,input_length=1))
-encoder_edu.add(Flatten())
+for w in model.get_weights():
+    if w.any():
+        print(w[0].shape)
 
-# Input layer for triggers(x_b)
-dense_x = Sequential()
-dense_x.add(Dense(4, input_dim=x.shape[1]))
+a = model.get_weights()
+a
 
-
-#model = Sequential()
-#model.add(Merge([encoder_liv, encoder_edu, dense_x], mode='concat'))
-## model.add(Activation('relu'))
-#model.add(Dense(output_dim=12))
-#model.add(Activation('relu'))
-#model.add(Dense(output_dim=3))
-#model.add(Activation('softmax'))
+model.evaluate([test_liv[:,None], test_edu[:,None], test_x],test_y, batch_size=256)
 
 
+p = model.predict([test_liv[:,None], test_edu[:,None], test_x], batch_size=256)
+p[:5]
+
+model.summary()
+
+################# #3 usinig dense round2 #####################
+
+model = Sequential()
+model.add(Dense(4, input_dim=train_x.shape[1]))
+model.add(Activation('relu'))
+model.add(Dense(output_dim=3))
+model.add(Activation('softmax'))
+
+model.compile(optimizer='adagrad', loss='binary_crossentropy', metrics=['accuracy'])
+model.fit(train_x, train_y, nb_epoch=100)
+
+model.evaluate(test_x,test_y,batch_size=256)
 
 
